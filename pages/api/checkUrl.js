@@ -1,24 +1,37 @@
-import { PrismaClient } from "@prisma/client";
+import { nanoid } from 'nanoid';
+import prisma from '../../clients/client';
+
+export const config = {
+  api: {
+    externalResolver: true,
+  },
+}
 
 export default function getPathDefinition(req, res) {
-  const prisma = new PrismaClient();
-
-  console.log("Working with params... - " + req.query.queryUrl);
-
   try {
     prisma.routingTable
-      .findMany({ where: { full_url: req.query.queryUrl } })
+      .findFirst({ where: { full_url: req.query.queryUrl } })
       .then((route) => {
-        console.log(route.length);
-        if (route.length > 0) {
-          return res.status(200).json({ route: route[0].code });
+        if (route !== null) {
+          //Code already exists in Database, return code to client.
+          res.status(200).json({ route: route.code });
         } else {
-          return res.status(200).json({ route: "UNREGISTERED" });
+          //URL not registered yet, register URL in DB.
+          const shortenedUrl = nanoid(6);
+          prisma.routingTable.create({
+            data: {
+              code: shortenedUrl,
+              full_url: req.query.queryUrl,
+            },
+          }).
+          then((newRoute) => {
+            res.status(200).json({ route: newRoute.code });
+          })
         }
       });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ msg: error });
+    res.status(500).json({ msg: error });
   } finally {
     prisma.$disconnect();
   }

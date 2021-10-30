@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { Fab, TextField, Alert, Stack, styled } from "@mui/material";
+import { Fab, TextField, Alert, Stack, styled, CircularProgress} from "@mui/material";
 import NavigationIcon from "@mui/icons-material/Navigation";
 
 import Head from "next/head";
@@ -32,9 +32,11 @@ const CssTextField = styled(TextField)({
 });
 
 export default function Home() {
-
   const [userURL, setUserURL] = useState("");
   const [emptyURL, setInvalidStatus] = React.useState(false);
+  const [successInfo, setSuccessInfo] = React.useState(false);
+  const [successText, setSuccessText] = useState("Success!!");
+  const [loadingStatus, setLoading] = React.useState(false);
 
   function handleChange(event) {
     setInvalidStatus(false);
@@ -42,58 +44,56 @@ export default function Home() {
   }
 
   const shortenURL = () => {
+    setSuccessInfo(false);
+    setLoading(true);
     if (userURL === null || userURL === "") {
       //Empty URL, show error alert.
-      console.log("No URL to shorten.");
       setInvalidStatus(true);
+      setLoading(false);
     } else {
       //URL exists
       let url_formatted = "";
       if (userURL.startsWith("http://") || userURL.startsWith("https://")) {
         //URL format initially correct
         url_formatted = userURL;
-        console.log("Input is: " + url_formatted);
       } else {
         //Format correction to be passed to validator.
         url_formatted = "http://" + userURL;
         setUserURL(url_formatted);
-        console.log("Input is: " + url_formatted);
       }
-
       //Validation of valid URL using valid-url npm package
       if (!isWebUri(url_formatted)) {
         //Bad URL, show error alert.
         setInvalidStatus(true);
+        setLoading(false);
       } else {
         //Good URL
-        console.log("Lookup in DB - " + url_formatted);
         queryRoute(url_formatted);
       }
     }
   };
 
   const queryRoute = (url) => {
-    console.log("Querying route: " + url);
     fetch("/api/checkUrl?queryUrl=" + url)
-    .then(response => response.json())
-    .then(data => {
-      console.log(data.route);
-      if(data.route === "UNREGISTERED"){
-        //generate new URL for user query
-        fetch("/api/compressURL?queryUrl=" + url)
-        .then(response2 => response2.json())
-        .then(compressedURL => {
-          console.log("New code generated: " + compressedURL.route);
-          //TO-DO: send compressedURL to front for user feedback of successful process.
-        })
-      }
-      else{
-        //return existing URL code data to user
-
-        //TO-DO: send data.route to front for user feedback of successful process.
-      }
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        if(data.route){
+          setSuccessText("Your new URL has been created at: " + process.env.NEXT_PUBLIC_SHORTEN_BASE + data.route);
+          setSuccessInfo(true);
+          setLoading(false);
+        }
+        else{
+          setInvalidStatus(true);
+          setLoading(false);
+        }
+      });
   };
+
+  const _handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      shortenURL();
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -116,7 +116,15 @@ export default function Home() {
           id="custom-css-outlined-input"
           value={userURL}
           onChange={handleChange}
+          onKeyDown={_handleKeyDown}
         />
+
+        {successInfo ? (
+          <Stack sx={{ width: "100%" }} spacing={2}>
+            <Alert severity="success">
+              {successText}</Alert>
+          </Stack>
+        ) : null}
 
         {emptyURL ? (
           <Stack sx={{ width: "100%" }} spacing={2}>
@@ -128,9 +136,11 @@ export default function Home() {
           variant="extended"
           className={styles.generateButton}
           onClick={shortenURL}
+          disabled={loadingStatus}
         >
           <NavigationIcon sx={{ mr: 1 }} />
           Generate
+          {loadingStatus ? <CircularProgress className={styles.loading}/> : null}
         </Fab>
       </main>
 
