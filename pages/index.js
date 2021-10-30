@@ -98,14 +98,14 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Yugnar's URL shortener</title>
-        <meta name="description" content="Yugnar's ULR shortener page title" />
+        <title>Yugnar&apos;s URL shortener</title>
+        <meta name="description" content="Yugnar&apos;s ULR shortener page title" />
         <link rel="icon" href="/yugIcon.ico" />
       </Head>
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Yugnar's <span className={styles.pageTitle}>URL shortener</span>
+          Yugnar&apos;s <span className={styles.pageTitle}>URL shortener</span>
         </h1>
 
         <p className={styles.description}>Enter a URL to shorten:</p>
@@ -145,7 +145,7 @@ export default function Home() {
       </main>
 
       <footer className={styles.footer}>
-        <a href="https://github.com/yugnar" target="_blank">
+        <a href="https://github.com/yugnar" target="_blank" rel="noreferrer">
           Created by Rafael Rojas{" "}
           <span className={styles.logo}>
             <Image src="/yugnar.svg" alt="Yugnar Logo" width={32} height={25} />
