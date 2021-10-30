@@ -76,7 +76,23 @@ export default function Home() {
     console.log("Querying route: " + url);
     fetch("/api/checkUrl?queryUrl=" + url)
     .then(response => response.json())
-    .then(data => console.log(data));
+    .then(data => {
+      console.log(data.route);
+      if(data.route === "UNREGISTERED"){
+        //generate new URL for user query
+        fetch("/api/compressURL?queryUrl=" + url)
+        .then(response2 => response2.json())
+        .then(compressedURL => {
+          console.log("New code generated: " + compressedURL.route);
+          //TO-DO: send compressedURL to front for user feedback of successful process.
+        })
+      }
+      else{
+        //return existing URL code data to user
+
+        //TO-DO: send data.route to front for user feedback of successful process.
+      }
+    });
   };
 
   return (
