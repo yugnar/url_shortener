@@ -16,7 +16,7 @@ export default function getRedirectValue(req, res) {
         } else {
           res
             .status(200)
-            .json({ route: process.env.NEXT_PUBLIC_SHORTEN_BASE });
+            .json({ route: "http://" + process.env.NEXT_PUBLIC_SHORTEN_BASE });
         }
       });
   } catch (error) {
