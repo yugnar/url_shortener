@@ -1,0 +1,11 @@
+{
+  "/[shortCode]": "pages/[shortCode].html",
+  "/_app": "pages/_app.js",
+  "/api/[shortId]": "pages/api/[shortId].js",
+  "/api/checkUrl": "pages/api/checkUrl.js",
+  "/api/hello": "pages/api/hello.js",
+  "/": "pages/index.html",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/404": "pages/404.html"
+}
